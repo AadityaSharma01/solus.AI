@@ -64,7 +64,7 @@ This calls sendAudio.solus with the context loaded from bootleg_RAG.txt.
 - If Piper fails to load the model, check file paths and GPU availability (use_cuda=True in sendAudio.py).
 - If transcription is poor, try a larger Whisper model or enable GPU support for Whisper.
 
-*the output capabilities of this model are pretty limited because it was build on an inferior GPU. Please install better TTS, LLM and STT model if your system supports them, for a better output.*
+<code>the output capabilities of this model are pretty limited because it was build on an inferior GPU. Please install better TTS, LLM and STT model if your system supports them, for a better output.</code>
 
 Contact aadirv28@gmail.com
 
