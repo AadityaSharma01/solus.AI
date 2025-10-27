@@ -41,7 +41,7 @@ Run the app:
 ```
 This calls sendAudio.solus with the context loaded from bootleg_RAG.txt.
 ```
-Files in this workspace
+## Files in this workspace
 
 - main.py — loads context and launches the assistant.
 - sendAudio.py — main implementation: audio capture, STT, LLM request, TTS.
@@ -52,7 +52,7 @@ Files in this workspace
 - audio-samples/ — (optional) place sample .wav files here.
 
 
-Notes & tips
+## Notes & tips
 
 - The code uses a silence counter to detect end of utterance. Adjust the threshold inside sendAudio.callBack (the silentTime logic) to suit your microphone and room noise.
 - The Piper synth call expects the ONNX model files in repo root. Confirm the filenames match those in sendAudio.py.
