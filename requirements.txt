@@ -1,0 +1,17 @@
+# Core dependencies
+numpy>=1.24.0
+requests>=2.31.0
+
+# Audio processing
+sounddevice>=0.4.6
+simpleaudio>=1.0.4
+pyloudnorm>=0.1.1
+
+# AI/ML
+faster-whisper>=0.9.0
+torch>=2.1.0  # CPU version, for GPU use cuda version
+piper-tts>=1.2.0  # Verify exact package name for your Piper implementation
+
+# Optional but recommended
+tqdm>=4.66.1  # For progress bars
+python-dotenv>=1.0.0  # For environment variables
