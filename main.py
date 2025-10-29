@@ -9,7 +9,7 @@ with open("rag/bootleg_RAG.txt", "r") as context_file:
     lines = context_file.readlines()[-20:]
     context = " ".join([line.strip() for line in lines])
 
-with open("rag/temp_RAG.txt", "a") as mem_context:
+with open("rag/temp_RAG.txt", "a", errors='ignore') as mem_context:
     mem_context.write(context)
 
 solus(f"greet the user according to the given time {now}")

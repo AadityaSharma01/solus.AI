@@ -50,7 +50,7 @@ def solus(context):
             silentTime[0] += 1
             print(silentTime[0])
 
-            if silentTime[0] >= 45:
+            if silentTime[0] >= 60:
                 print("Okay now sending to Llama")
                 stream.stop()
 
@@ -81,7 +81,7 @@ def solus(context):
             try:
                 subprocess.run("cls", shell=True)
 
-                with open("rag/bootleg_RAG.txt", "a") as rag_file:
+                with open("rag/bootleg_RAG.txt", "a",errors='ignore') as rag_file:
                     rag_file.write(f"\n{dialouge}")
             except FileExistsError:
                 print("the file already exists")
@@ -89,7 +89,7 @@ def solus(context):
             wav_path = "test.wav"
             wav_object = sa.WaveObject.from_wave_file(wav_path)
             
-            requests.post("http://localhost:5000/api/runface", json={"time": time.time(), "value": duration[0]})
+            requests.post("http://localhost:5000/api/runface", json={"time": time.time(), "value": duration[0], "dialouge": dialouge})
             wav_object.play()
 
             if duration[0] > 5:
@@ -107,17 +107,19 @@ def solus(context):
             "http://localhost:11434/api/generate",
             json={
                 "model": "mistral",
-                "prompt": "{THIS IS THE MAIN QUERY REPLY TO THIS IN 30 WORDS OR LESS, "
-                + query
-                + "\n\n"
-                + "THIS IS THE CONTEXT FOR THE CONVERSATION: "
-                + context,
+                "prompt": f"""userquery: ${query} - ONLY REPLY TO userquery,
+                userquery IS PRIORITY,
+                FOCUS ON userquery,
+                understand the userinput
+                and reply in a CONCISE, SHORT and natural language;
+                
+                context: ${context} - consider the context;""",
                 "stream": False,
             },
         )
         result = req.json()
         # print(result["response"])
-        with open("rag/temp_RAG.txt", "a") as local_context:
+        with open("rag/temp_RAG.txt", "a", errors='ignore') as local_context:
             local_context.write(query + "\n")
         sendToPiper(result["response"])  ##UNCTION DEF LINE NUMBER 77
 
@@ -147,7 +149,7 @@ def solus(context):
 
 # LOCAL ENTRY POINT
 if __name__ == "__main__":
-    with open("rag/temp_RAG.txt", "r") as temp_context_file:
+    with open("rag/temp_RAG.txt", "r", errors='ignore') as temp_context_file:
         lines = temp_context_file.readlines()[-100:]
         context = " ".join([line.strip() for line in lines])
 

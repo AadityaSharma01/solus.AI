@@ -16,15 +16,18 @@ app.get('/', (req, res) => {
 
 let currentVal = null;
 let currentTime = null;
+let currentText = null;
+
 app.post("/api/runface", (req, res) => {
-    const { time, value } = req.body;
+    const { time, value, dialouge } = req.body;
     currentTime = time,
     currentVal = value;
+    currentText = dialouge;
     res.status(200).json({ status: "success" });
 })
 
 app.get("/api/runface", (__, res) => {
-    res.json({ currentTime, currentVal });
+    res.json({ currentTime, currentVal, currentText });
 })
 
 app.listen(PORT, () => {

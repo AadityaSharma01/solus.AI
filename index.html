@@ -1,7 +1,9 @@
 <html>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime&display=swap');
+
   .main-screen {
-    background-color: rgb(0, 0, 0);
+    background-color: rgb(12, 1, 32);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -9,36 +11,70 @@
     height: 100vh;
     margin: 0;
   }
+
+  .main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+  }
+
   .face {
-    color: rgb(0, 0, 255);
+    background-color: transparent;
+    color: rgb(21, 13, 2247);
     font-size: 12px;
-    border: 1px dotted rgb(0, 0, 255);
+    border: 1px dotted rgb(21, 13, 247);
     height: 604px !important;
     width: 523.4px !important;
     overflow-y: hidden;
     margin: 0;
     scale: 0.75;
     transition: all 0.05 step-end;
+    box-shadow: 0 0 5px 3px rgba(21, 13, 247, 0.5), 0 0 15px 20px rgba(21, 13, 247, 0.25);
   }
-  .soundbar{
+
+  .reply {
+    font-family: 'Courier Prime', monospace;
+    background-color: transparent;
+    color: rgb(21, 13, 2247);
+    font-size: 12px;
+    border: 1px dotted rgb(21, 13, 247);
+    height: 504px !important;
+    width: 523.4px !important;
+    margin: 0;
+    scale: 0.75;
+    transition: all 0.05 step-end;
+    box-shadow: 0 0 5px 3px rgba(21, 13, 247, 0.5), 0 0 15px 20px rgba(21, 13, 247, 0.25);
+    font-size: 30px;
+    flex-wrap: wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    overflow: scroll;
+    padding: 50px
+  }
+
+  .soundbar {
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: row;
-    border: 1px dotted rgb(0, 0, 255);
+    border: 1px dotted rgb(21, 13, 247);
     width: 700px;
     height: 100px;
   }
-  .subbar{
-    background-color: rgb(0, 0, 255);
+
+  .subbar {
+    background-color: rgb(21, 13, 247);
     width: 90px;
     margin: 5px;
     transition: all 0.1s ease-in;
-    height: 10px;
+    height: 5px;
   }
 </style>
+
 <body class="main-screen">
-  <pre class="face" id="face">
+  <div class="main">
+    <pre class="face" id="face">
                                   ░▒█▓▓▓▓▓▓▓░                               
                           ▒▓▓▓████████▓██▓▓█████▓███▓                          
                        ░▒▒▒▓█▓████████▓█▓█▓▓▒▓▓▓▓▓▓████                        
@@ -83,6 +119,9 @@
                      ░░░░░░░░░▒▒▒▒▒▓▓▓▓▓███████████████████          ▓         
                   ▒░░░░░░░░░░░░▒▒▒▒▒▓▓▓▓██████████████████████░                
   </pre>
+    <div class="reply" id="reply">Listening...</div>
+
+  </div>
   <div id="soundbar" class="soundbar">
     <div id="bar1" class="subbar"></div>
     <div id="bar2" class="subbar"></div>
@@ -96,7 +135,7 @@
   <script>
     let previousTime = null;
     let animationInterval = null;
-    
+
     const faceObj = {
       1: `                           ░▒█▓▓▓▓▓▓▓░                               
                           ▒▓▓▓████████▓██▓▓█████▓███▓                          
@@ -229,7 +268,7 @@
                        ░░░░░░░▒▒▒▒▒▓▓▓▓█████████████████              ▒ ▒      
                      ░░░░░░░░░▒▒▒▒▒▓▓▓▓▓███████████████████          ▓         
                   ▒░░░░░░░░░░░░▒▒▒▒▓▓▓▓▓██████████████████████░                `,
-      4:`
+      4: `
                                      ░ ▓▓▓▓▓▓▓▓                                
                           ▒▓▓▓▓████████▓▓██████▓███▓▒                          
                        ░▒▒▒▓█▓████████▓▓▓▓▓▓▓▓▓▓█▓█████                        
@@ -317,7 +356,7 @@
                        ░░░░░░░▒▒▒▒▒▓▓▓▓█████████████████              ▒ ▒      
                      ░░░░░░░░░▒▒▒▒▒▓▓▓▓▓███████████████████          ▓         
                   ▒░░░░░░░░░░░░▒▒▒▒▓▓▓▓▓██████████████████████░                `,
-      6:`
+      6: `
                                      ░▒▓▓▓▓▓▓▓▓░                               
                           ▒▓▓▓████████▓█▓█▓█████▓▓█▓▓                          
                        ░▒▒▒▓▓▓████████▓█▓▓▓▓▒▓▓▓▓▓▓████                        
@@ -448,7 +487,7 @@
                         ░░░░▒░▒▒▒▒▒▓▓▓▓███████████████████            ▓ ▒      
                      ░░░░░░░▒░░▒▒▒▓▓▓▓▓▓█████████████████████        ░         
                   ░░░░░░░░░▒▒░░▒▒▒▓▓▓▓▓▓▓███████████████████████▓              `,
-       8: `
+      8: `
                               ░▓▓▓▓▓▓▓▓░                                       
                            ▒▓▓▓███▓▓████████▓░                                 
                    ▒▓▓██████▓▓▓▓▓▒▓▒▓▒▓▓▓▓██████                               
@@ -492,7 +531,7 @@
                         ░░░░░░▒▒▒▒▒▓▓▓▓▓████████████████              ▓ ▒      
                       ░░░░░░░░░▒▒▒▒▒▓▓▓▓▓█████████████████           ░         
                     ░░░░░░░░░░░▒▒▒▒▒▓▓▓▓▓████████████████████                  `,
-      9:`
+      9: `
                                ▒▒▓▓▓▓▓░     ░▒▒░                               
                            ░▒▒▓▓▓▓█▒█████████▓▓▓▓▓▓▓░                          
                          ░▒▓▓▒▒▓▓▓████████▓█▓▓▓▓▓▓▓█▓▓██                       
@@ -536,8 +575,8 @@
               ░░░░░░░░░░▒▒▒▒▒▒▓▓▓▓█████████████████                   ▓░▒      
            ░░░░░░░░░░░░░▒▒▒▒▒▒▓▓▓▓███████████████████▓                         
        ░░░░░░░░░░░░░░░░░▒▒▒▒▒▒▓▓▓▓▓██████████████████████                      `
-};
-    
+    };
+
     const face = document.getElementById("face");
     const bar1 = document.getElementById("bar1");
     const bar2 = document.getElementById("bar2");
@@ -546,25 +585,31 @@
     const bar5 = document.getElementById("bar5");
     const bar6 = document.getElementById("bar6");
     const bar7 = document.getElementById("bar7");
-    
+
+    const reply = document.getElementById("reply");
+    let answerInd = 0;
+
     const checkForUpdates = async () => {
       try {
         const res = await fetch("/api/runface");
         const data = await res.json();
-        
-        // New signal detected
+
         if (data.currentTime !== null && data.currentTime !== previousTime) {
           previousTime = data.currentTime;
+          answerInd = 0;
+          reply.textContent = ""
           const duration = data.currentVal || 2;
-          
+          const answer = data.currentText.trim();
+
           if (animationInterval) {
             clearInterval(animationInterval);
           }
 
           let currentFaceIndex = 1;
           face.textContent = faceObj[currentFaceIndex];
-          
+
           animationInterval = setInterval(() => {
+            appendReply();
             currentFaceIndex = Math.floor(Math.random() * (9 - 1 + 1)) + 1;
             face.textContent = faceObj[currentFaceIndex];
 
@@ -580,26 +625,35 @@
               document.querySelectorAll(".subbar").forEach(bar => {
                 bar.style.height = "10px";
                 face.style.borderWidth = "2px";
-              });}, 60);
+              });
+            }, 60);
           }, 125);
-          
 
-          // Stop animation after duration and reset to default
+
+          const appendReply = () => {
+            if (answerInd < answer.length) {
+              reply.textContent += answer[answerInd];
+              answerInd++;
+              setTimeout(appendReply, (duration * 1000) / answer.length);
+            }
+          };
+
           setTimeout(() => {
             clearInterval(animationInterval);
             face.textContent = faceObj[1];
           }, duration * 1000);
         }
-        
+
       } catch (err) {
         console.error("Fetch failed:", err);
         face.textContent = faceObj[1];
       }
     };
-    
+
     face.textContent = faceObj[1];
     setInterval(checkForUpdates, 100);
     checkForUpdates();
   </script>
 </body>
+
 </html>
