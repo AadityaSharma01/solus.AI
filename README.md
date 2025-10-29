@@ -91,7 +91,7 @@ ollama pull mistral
 - **server.js**: Web UI server (Express)
 - **index.html**: Interactive UI elements
 
-## Features for Recruiters
+## Features
 
 - **AI/ML Integration**: Implements cutting-edge local LLM technology
 - **Real-time Processing**: Advanced audio stream handling and processing
