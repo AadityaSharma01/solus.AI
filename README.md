@@ -1,72 +1,234 @@
-# Solus — voice-driven RAG assistant
+# Solus — Local Voice RAG Assistant
 
-Small local voice assistant that captures microphone audio, transcribes with Whisper, queries an LLM (via local Ollama-like API), and speaks replies with Piper.
+Solus is a local, voice-driven retrieval-augmented generation (RAG) assistant. It captures microphone audio, transcribes speech with Whisper (faster-whisper), queries a local LLM endpoint (Ollama / compatible server), and speaks replies using Piper. A small Node/Express server drives a web-based ASCII "face" animation during TTS playback.
 
-- Entrypoint: [main.py](main.py)  
-- Core logic & audio loop: [`sendAudio.solus`](sendAudio.py) in [sendAudio.py](sendAudio.py)  
-- Functions referenced:
-  - [`sendAudio.callBack`](sendAudio.py) — the sounddevice input callback that queues audio.
-  - [`sendAudio.sendToOllama`](sendAudio.py) — posts the composed prompt to the local model API.
-  - [`sendAudio.sendToPiper`](sendAudio.py) — synthesizes and plays speech via Piper.
-- Model assets:
-  - [en_US-lessac-medium.onnx](en_US-lessac-medium.onnx)
-  - [en_US-lessac-medium.onnx.json](en_US-lessac-medium.onnx.json)
-- Context/state files:
-  - [bootleg_RAG.txt](bootleg_RAG.txt)
-  - [temp_RAG.txt](temp_RAG.txt)
+This README documents exact, step-by-step setup on Windows (PowerShell), required files, how to run the project, configuration options, and troubleshooting tips.
 
-Quick overview
-- Captures audio with sounddevice and measures loudness with pyloudnorm.
-- Uses faster_whisper (WhisperModel) for streaming speech-to-text (STT).
-- When silence threshold is detected, the collected transcript (`query`) is sent to a local LLM API and the response is synthesized by Piper.
-- Conversation context is appended to `bootleg_RAG.txt` and temporary context to `temp_RAG.txt`.
+---
 
-Requirements
-- Python 3.10+ recommended
-- System deps for sounddevice (ALSA / PortAudio) and simpleaudio
-- The repo expects the ONNX Piper voice files in the repo root:
-  - [en_US-lessac-medium.onnx](en_US-lessac-medium.onnx)
-  - [en_US-lessac-medium.onnx.json](en_US-lessac-medium.onnx.json)
-
-Python dependencies (example)
-```
-pip install sounddevice numpy faster-whisper requests piper-sdk simpleaudio pyloudnorm
-```
-Adjust package names for your Piper package if it differs.
-
-Run
-
-Start the local LLM service that listens at http://localhost:11434 (the code posts to that URL).
-Run the app:
-```
-This calls sendAudio.solus with the context loaded from bootleg_RAG.txt.
-```
-## Files in this workspace
-
-- main.py — loads context and launches the assistant.
-- sendAudio.py — main implementation: audio capture, STT, LLM request, TTS.
-- bootleg_RAG.txt — persistent conversation RAG file (appended by Piper).
-- temp_RAG.txt — temporary/session context (managed by the script).
-- en_US-lessac-medium.onnx — Piper voice model (binary).
-- en_US-lessac-medium.onnx.json — Piper voice metadata.
-- audio-samples/ — (optional) place sample .wav files here.
-
-
-## Notes & tips
-
-- The code uses a silence counter to detect end of utterance. Adjust the threshold inside sendAudio.callBack (the silentTime logic) to suit your microphone and room noise.
-- The Piper synth call expects the ONNX model files in repo root. Confirm the filenames match those in sendAudio.py.
-- The script currently restarts itself after speaking by invoking python sendAudio.py. You can replace that behavior with a loop or refactor the TTS playback to avoid spawning a subprocess.
-- Ensure your local LLM server (the endpoint in sendAudio.sendToOllama) is running and the model parameter matches the models available to your server.
+Table of contents
+- Project layout
+- Requirements & supported platforms
+- Files that must be present (voice models, RAG files)
+- Step-by-step Windows setup (PowerShell)
+- Running the system
+- Configuration & usage notes
 - Troubleshooting
+- Security & license notes
 
-- If microphone capture fails, verify sounddevice/PortAudio installation and the default input device.
-- If Piper fails to load the model, check file paths and GPU availability (use_cuda=True in sendAudio.py).
-- If transcription is poor, try a larger Whisper model or enable GPU support for Whisper.
+---
 
-<code>the output capabilities of this model are pretty limited because it was build on an inferior GPU. Please install better TTS, LLM and STT model if your system supports them, for a better output.</code>
+Project layout (source files)
+- main.py — launcher: starts Ollama, loads initial context, calls solus(...)
+- sendAudio.py — main assistant: STT loop, silence detection, calls LLM and Piper TTS
+- server.js — small Express server exposing /api/runface for the face animation
+- index.html — web UI for the ASCII face (served by server.js)
+- init.py — convenience script that spawns node server.js and python main.py
+- face.py — (optional) CLI face animation helper
+- rag/bootleg_RAG.txt — persistent RAG/context (appended by TTS)
+- rag/temp_RAG.txt — temporary/session context (read/written by the app)
+- voicemodels/ — folder for Piper voice model files
 
-Contact aadirv28@gmail.com
+---
 
-Open issues in this repository for bugs or improvements.
+Prerequisites (what to install)
+- Windows 10/11 (64-bit)
+- Python 3.10 or 3.11 (64-bit)
+- Git
+- Node.js 18+ (includes npm)
+- Ollama (or an LLM server exposing a compatible /api/generate endpoint at localhost:11434) — optional if you plan to test without Ollama
+- For better performance (optional): CUDA-compatible GPU and matching drivers if you intend to use use_cuda=True for Piper/Whisper
+
+Recommended Python packages (will be installed below):
+- sounddevice
+- numpy
+- faster-whisper
+- requests
+- simpleaudio
+- pyloudnorm
+- piper
+- (and any transitive deps such as torch if your Piper or whisper installation requires it)
+
+---
+
+Create a Python virtual environment and install dependencies (PowerShell)
+1. Open PowerShell as your user (not Administrator unless needed).
+2. Clone repo and switch to project directory:
+   ```
+   git clone <repo-url> solus
+   cd .\solus
+   ```
+3. Create and activate a venv:
+   ```
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   python -m pip install --upgrade pip
+   ```
+4. Create a requirements file (recommended) and install. Example requirements (you can save this as `requirements.txt` in the repo root):
+
+   ```
+   # Save this content as requirements.txt
+   sounddevice
+   numpy
+   faster-whisper
+   requests
+   simpleaudio
+   pyloudnorm
+   piper
+   ```
+
+   Install:
+   ```
+   pip install -r requirements.txt
+   ```
+
+Note: faster-whisper/piper may require additional system libraries or torch. If a dependency fails, inspect the error and install the matching wheel/torch for your platform.
+
+---
+
+Node.js setup for face/server
+1. Ensure Node is installed: `node -v` (recommended v18+).
+2. Initialize npm and mark ESM (server.js uses ES modules):
+   ```
+   npm init -y
+   # Edit package.json and add: "type": "module"
+   # Or run: (PowerShell)
+   (Get-Content package.json) -replace '"main": "index.js",','"main": "index.js",' | Set-Content package.json
+   # then manually add "type": "module" in package.json, or run:
+   npm pkg set type=module
+   ```
+3. Install express:
+   ```
+   npm i express
+   ```
+
+---
+
+Voice model files and folders (required)
+- Create folder `voicemodels/` in repo root.
+- Place Piper voice files inside (used by sendAudio.py):
+  - voicemodels/en_US-lessac-medium.onnx
+  - voicemodels/en_US-lessac-medium.onnx.json
+Notes:
+- These ONNX files are not included in the repo. Obtain them from the Piper voice distribution/source you use.
+- If you don't have a GPU, set `use_cuda=False` when loading the voice in sendAudio.py.
+
+RAG files (create if missing)
+- rag/bootleg_RAG.txt — create empty file:
+  ```
+  mkdir rag
+  New-Item -Path .\rag\bootleg_RAG.txt -ItemType File -Force
+  New-Item -Path .\rag\temp_RAG.txt -ItemType File -Force
+  ```
+
+---
+
+Ollama / LLM server
+- The script expects a local LLM endpoint at `http://localhost:11434/api/generate`. Install and run Ollama (or another server providing a compatible endpoint). Example Ollama start:
+  ```
+  ollama serve
+  ```
+- Ensure an appropriate model (e.g. `mistral`) is available to the server. If using Ollama:
+  ```
+  ollama pull mistral
+  ollama serve
+  ```
+- Quick test the LLM API with PowerShell (replace payload as needed):
+  ```
+  $body = @{ model='mistral'; prompt='hello'; stream=$false } | ConvertTo-Json
+  Invoke-RestMethod -Uri 'http://localhost:11434/api/generate' -Method Post -Body $body -ContentType 'application/json'
+  ```
+
+---
+
+Run the system (recommended order)
+1. Start the Node server and the assistant via the provided convenience script (PowerShell):
+   ```
+   python init.py
+   ```
+   - init.py will spawn the Node server and then start main.py.
+   - Alternatively you can run components manually:
+     - Start node server:
+       ```
+       node server.js
+       ```
+     - Start Ollama (if not running already):
+       ```
+       ollama serve
+       ```
+     - In a separate PowerShell terminal, run:
+       ```
+       python main.py
+       ```
+2. main.py reads `rag/bootleg_RAG.txt`, appends to `rag/temp_RAG.txt`, calls `solus()` in sendAudio.py and begins audio capture.
+3. Speak into the microphone. The assistant transcribes audio and on silence sends the composed prompt to the LLM and synthesizes the reply with Piper.
+4. During playback a POST is made to the Node server `/api/runface` so the web face (open http://localhost:5000) animates.
+
+---
+
+Configuration & important variables
+- sendAudio.py:
+  - sampleRate, chunkSize — audio capture settings
+  - silentTime threshold — number of loudness blocks considered silence before sending to LLM
+  - voice load: change `use_cuda=True` to `False` if you have no GPU
+  - model selection for LLM in `sendToOllama()` — modify the `"model": "mistral"` string if your LLM server uses a different model name
+- server.js:
+  - PORT (currently 5000) — change if port conflicts exist
+  - index.html contains the face animation and polls `/api/runface`
+
+---
+
+Troubleshooting
+- Microphone capture fails:
+  - Ensure PortAudio is installed and the correct audio device is selected.
+  - Run a minimal sounddevice test:
+    ```python
+    import sounddevice as sd
+    print(sd.query_devices())
+    ```
+- Piper or faster-whisper import errors:
+  - Verify installed package names and platform-specific dependencies (torch, CUDA drivers).
+- LLM errors (connection refused / JSON decoding)
+  - Confirm Ollama (or other server) is running on 11434 and responding to `/api/generate`.
+  - Use curl/Invoke-RestMethod to test connectivity.
+- Node server errors:
+  - Ensure `package.json` contains `"type": "module"` so server.js ESM imports work.
+  - Ensure express installed: `npm ls express`
+- Face animation not updating:
+  - Ensure index.html served at http://localhost:5000 and the assistant POSTs `/api/runface` (sendAudio.py calls this).
+
+---
+
+Security & privacy notes
+- Audio and conversation context are written to files under `rag/` — remove or sanitize if you need to purge history.
+- This project runs local servers and subprocesses. Do not expose to public networks without proper protections.
+- Model usage and voice model licensing: ensure you have the right to use the models you download.
+
+---
+
+Optional improvements / TODOs
+- Replace subprocess-based restart of sendAudio.py with an in-process loop to avoid spawning processes.
+- Add a requirements.txt and a package.json in repo for reproducible installs.
+- Add unit tests for modules that do not require audio/hardware or external servers.
+- Add CLI flags to configure ports, model names, and the silence threshold.
+
+---
+
+Example requirements.txt (save in repo root as requirements.txt)
+```text
+sounddevice
+numpy
+faster-whisper
+requests
+simpleaudio
+pyloudnorm
+piper
+```
+
+---
+
+License
+- Add your preferred license file (LICENSE) to the repo.
+
+If more granular help is required (example package.json, a requirements.txt added to the repo, or a small script to validate installation), indicate which file you want created and it will be scaffolded.
 
