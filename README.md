@@ -119,10 +119,6 @@ ollama pull mistral
 
 PRs welcome! Check our contribution guidelines.
 
-## License
-
-MIT License - see [LICENSE](LICENSE) for details
-
 ---
 
 Built with care by Aaditya
