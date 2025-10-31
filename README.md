@@ -120,5 +120,6 @@ ollama pull mistral
 PRs welcome! Check our contribution guidelines.
 
 ---
+LICENSE { https://github.com/AadityaSharma01/solus.AI/blob/main/LICENSE }
 
 Built with care by Aaditya
