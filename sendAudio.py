@@ -107,13 +107,23 @@ def solus(context):
             "http://localhost:11434/api/generate",
             json={
                 "model": "mistral",
-                "prompt": f"""userquery: ${query} - ONLY REPLY TO userquery,
-                userquery IS PRIORITY,
-                FOCUS ON userquery,
-                understand the userinput
-                and reply in a CONCISE, SHORT and natural language;
-                
-                context: ${context} - consider the context;""",
+                "prompt": f"""<INSTRUCTIONS>
+                            1. RESPOND in a warm and loving tone
+                            1. ONLY answer the TASK section
+                            2. IGNORE CONTEXT SECTION COMPLETELY - do not reference it, summarize it, or use it unless TASK explicitly asks for it
+                            3. If CONTEXT contradicts TASK, follow TASK
+                            </INSTRUCTIONS>
+
+
+                              <TASK>
+                                ${query}
+                              </TASK>
+                            .
+                            . IGNORE EVERYTHING BELOW THIS LINE UNLESS DIRECTLY REFERENCED IN THE QUERY ABOVE
+                            .
+                             <CONTEXT>
+                                ${context}
+                             </CONTEXT>""",
                 "stream": False,
             },
         )
